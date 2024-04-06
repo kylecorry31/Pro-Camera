@@ -30,16 +30,20 @@ import com.kylecorry.luna.coroutines.onIO
 import com.kylecorry.luna.coroutines.onMain
 import com.kylecorry.procamera.R
 import com.kylecorry.procamera.databinding.FragmentMainBinding
+import com.kylecorry.procamera.infrastructure.io.FileNameGenerator
+import com.kylecorry.procamera.infrastructure.io.MediaStoreSaver
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : BoundFragment<FragmentMainBinding>() {
 
+    // DI
     @Inject
     lateinit var formatter: FormatService
 
@@ -49,6 +53,13 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     @Inject
     lateinit var haptics: IHapticMotor
 
+    @Inject
+    lateinit var fileNameGenerator: FileNameGenerator
+
+    @Inject
+    lateinit var mediaStoreSaver: MediaStoreSaver
+
+    // State
     private var focusPercent by state<Float?>(null)
     private var iso by state<Int?>(null)
     private var shutterSpeed by state<Duration?>(null)
@@ -185,19 +196,15 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     fun takePhoto() {
         inBackground {
             queue.enqueue {
-                val fileName = "images/${
-                    getString(R.string.app_name).replace(
-                        " ",
-                        ""
-                    )
-                }_${LocalDateTime.now()}.jpg"
+                val fileName = fileNameGenerator.generate()
                 val file = files.getFile(fileName, true)
 
                 isCapturing = true
 
                 onIO {
                     binding.camera.capture(file)
-                    moveFileToMediaStore(file)
+                    mediaStoreSaver.copyToMediaStore(file)
+                    file.delete()
                 }
 
                 haptics.feedback(HapticFeedbackType.Click)
@@ -206,37 +213,6 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             }
         }
 
-    }
-
-    private suspend fun moveFileToMediaStore(file: File) = onIO {
-        // Save the file to the system media store
-        val resolver = requireContext().contentResolver
-        val photoCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
-
-        val photoDetails = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM)
-            put(MediaStore.Images.Media.IS_PENDING, 1)
-        }
-
-        val photoContentUri = resolver.insert(photoCollection, photoDetails) ?: return@onIO
-        val externalFiles = ExternalFileSystem(requireContext())
-        externalFiles.outputStream(photoContentUri)?.use { output ->
-            file.inputStream().use { input ->
-                input.copyTo(output)
-            }
-        }
-
-        file.delete()
-
-        photoDetails.clear()
-        photoDetails.put(MediaStore.Audio.Media.IS_PENDING, 0)
-        resolver.update(photoContentUri, photoDetails, null, null)
     }
 
     override fun generateBinding(

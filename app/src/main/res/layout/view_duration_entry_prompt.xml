@@ -15,7 +15,7 @@
         tools:text="Message"
         tools:visibility="visible" />
 
-    <com.kylecorry.procamera.ui.DurationInputView
+    <com.kylecorry.procamera.ui.views.DurationInputView
         android:id="@+id/prompt_duration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

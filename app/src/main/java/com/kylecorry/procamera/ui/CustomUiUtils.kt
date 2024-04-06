@@ -7,6 +7,7 @@ import androidx.core.view.isVisible
 import com.kylecorry.andromeda.alerts.Alerts
 import com.kylecorry.andromeda.core.system.Resources
 import com.kylecorry.procamera.R
+import com.kylecorry.procamera.ui.views.DurationInputView
 import java.time.Duration
 
 object CustomUiUtils {

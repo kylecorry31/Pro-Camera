@@ -25,7 +25,6 @@ lifecycleService = "2.7.0"
 material = "1.10.0"
 mockitoKotlinVersion = "5.1.0"
 navigationFragmentKtx = "2.7.7"
-roomVersion = "2.6.1"
 sol = "9.4.0"
 workRuntimeKtx = "2.9.0"
 preferenceKtx = "1.2.1"
@@ -43,9 +42,6 @@ androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", 
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleService" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragmentKtx" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 androidx-gridlayout = { module = "androidx.gridlayout:gridlayout", version.ref = "gridlayout" }
@@ -57,9 +53,7 @@ andromeda-files = { module = "com.github.kylecorry31.andromeda:files", version.r
 andromeda-fragments = { module = "com.github.kylecorry31.andromeda:fragments", version.ref = "andromedaVersion" }
 andromeda-haptics = { module = "com.github.kylecorry31.andromeda:buzz", version.ref = "andromedaVersion" }
 andromeda-canvas = { module = "com.github.kylecorry31.andromeda:canvas", version.ref = "andromedaVersion" }
-andromeda-list = { module = "com.github.kylecorry31.andromeda:list", version.ref = "andromedaVersion" }
 andromeda-pickers = { module = "com.github.kylecorry31.andromeda:pickers", version.ref = "andromedaVersion" }
-andromeda-notify = { module = "com.github.kylecorry31.andromeda:notify", version.ref = "andromedaVersion" }
 andromeda-permissions = { module = "com.github.kylecorry31.andromeda:permissions", version.ref = "andromedaVersion" }
 andromeda-preferences = { module = "com.github.kylecorry31.andromeda:preferences", version.ref = "andromedaVersion" }
 andromeda-views = { module = "com.github.kylecorry31.andromeda:views", version.ref = "andromedaVersion" }

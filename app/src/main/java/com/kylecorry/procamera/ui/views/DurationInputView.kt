@@ -1,4 +1,4 @@
-package com.kylecorry.procamera.ui
+package com.kylecorry.procamera.ui.views
 
 import android.content.Context
 import android.util.AttributeSet

@@ -47,10 +47,10 @@ class MainActivity : AndromedaActivity() {
         setColorTheme(ColorTheme.System, true)
         enableEdgeToEdge(
             navigationBarStyle = if (isDarkTheme()) {
-                SystemBarStyle.dark(Resources.androidBackgroundColorSecondary(this))
+                SystemBarStyle.dark(Resources.androidBackgroundColorPrimary(this))
             } else {
                 SystemBarStyle.light(
-                    Resources.androidBackgroundColorSecondary(this),
+                    Resources.androidBackgroundColorPrimary(this),
                     Color.BLACK
                 )
             }

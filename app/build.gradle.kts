@@ -93,11 +93,6 @@ dependencies {
     implementation(libs.material)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    // Room
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-
     // Sol
     implementation(libs.sol)
 
@@ -108,10 +103,8 @@ dependencies {
     implementation(libs.andromeda.exceptions)
     implementation(libs.andromeda.preferences)
     implementation(libs.andromeda.permissions)
-    implementation(libs.andromeda.notify)
     implementation(libs.andromeda.alerts)
     implementation(libs.andromeda.pickers)
-    implementation(libs.andromeda.list)
     implementation(libs.andromeda.files)
     implementation(libs.andromeda.views)
     implementation(libs.andromeda.canvas)

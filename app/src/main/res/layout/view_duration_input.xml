@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         app:endIconMode="clear_text">
 
-        <com.kylecorry.procamera.ui.EndOnlyEditText
+        <com.kylecorry.procamera.ui.views.EndOnlyEditText
             android:id="@+id/duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
