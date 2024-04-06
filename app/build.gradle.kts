@@ -87,6 +87,9 @@ dependencies {
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
     implementation(libs.material)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
@@ -100,6 +103,7 @@ dependencies {
 
     // Andromeda
     implementation(libs.andromeda.core)
+    implementation(libs.andromeda.camera)
     implementation(libs.andromeda.fragments)
     implementation(libs.andromeda.exceptions)
     implementation(libs.andromeda.preferences)
@@ -110,6 +114,8 @@ dependencies {
     implementation(libs.andromeda.list)
     implementation(libs.andromeda.files)
     implementation(libs.andromeda.views)
+    implementation(libs.andromeda.canvas)
+    implementation(libs.andromeda.haptics)
 
     // Hilt
     implementation(libs.hilt.android)

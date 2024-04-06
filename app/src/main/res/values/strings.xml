@@ -3,7 +3,16 @@
     <string name="error_occurred">An error occurred</string>
     <string name="error_occurred_message">%s ran into an error. Please email the developer to get this issue fixed.</string>
     <string name="email_developer">Email developer</string>
-    <string name="email" translatable="false">INSERT YOUR EMAIL</string>
+    <string name="email" translatable="false">trailsense@protonmail.com</string>
     <string name="home">Home</string>
     <string name="settings">Settings</string>
+    <string name="camera_unavailable">Camera unavailable</string>
+    <string name="focus_amount">Focus: %s</string>
+    <string name="auto">Auto</string>
+    <string name="iso">ISO</string>
+    <string name="shutter_speed">Shutter Speed</string>
+    <string name="captured">Captured</string>
+    <string name="duration">Duration</string>
+    <string name="interval">Interval</string>
+    <string name="off">Off</string>
 </resources>

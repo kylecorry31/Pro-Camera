@@ -1,5 +1,6 @@
 package com.kylecorry.procamera.ui
 
+import android.Manifest
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
@@ -30,7 +31,9 @@ class MainActivity : AndromedaActivity() {
     private val binding: ActivityMainBinding
         get() = _binding!!
 
-    private val permissions = mutableListOf<String>()
+    private val permissions = mutableListOf(
+        Manifest.permission.CAMERA
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ExceptionHandler.initialize(this)
@@ -51,8 +54,6 @@ class MainActivity : AndromedaActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.bottomNavigation.setupWithNavController(findNavController(), false)
-
         bindLayoutInsets()
 
         requestPermissions(permissions) {
@@ -68,10 +69,6 @@ class MainActivity : AndromedaActivity() {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        binding.bottomNavigation.selectedItemId = savedInstanceState.getInt(
-            "page",
-            R.id.action_main
-        )
         if (savedInstanceState.containsKey("navigation")) {
             tryOrNothing {
                 val bundle = savedInstanceState.getBundle("navigation_arguments")
@@ -82,7 +79,6 @@ class MainActivity : AndromedaActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt("page", binding.bottomNavigation.selectedItemId)
         findNavController().currentBackStackEntry?.arguments?.let {
             outState.putBundle("navigation_arguments", it)
         }
