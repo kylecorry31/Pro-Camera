@@ -2,14 +2,14 @@ package com.kylecorry.procamera.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalZeroShutterLag
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
-import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.core.view.isVisible
-import com.kylecorry.andromeda.alerts.toast
 import com.kylecorry.andromeda.camera.ImageCaptureSettings
 import com.kylecorry.andromeda.core.math.DecimalFormatter
 import com.kylecorry.andromeda.core.time.CoroutineTimer
@@ -109,7 +109,8 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
         binding.camera.start(
             readFrames = false, captureSettings = ImageCaptureSettings(
                 quality = 100,
-                captureMode = CAPTURE_MODE_ZERO_SHUTTER_LAG
+                captureMode = CAPTURE_MODE_MAXIMIZE_QUALITY,
+                rotation = Surface.ROTATION_90
             )
         )
     }
