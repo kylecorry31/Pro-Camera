@@ -185,8 +185,12 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     fun takePhoto() {
         inBackground {
             queue.enqueue {
-                val fileName = "images/ProCamera_${LocalDateTime.now()}.jpg"
-                // TODO: Save to the gallery
+                val fileName = "images/${
+                    getString(R.string.app_name).replace(
+                        " ",
+                        ""
+                    )
+                }_${LocalDateTime.now()}.jpg"
                 val file = files.getFile(fileName, true)
 
                 isCapturing = true
