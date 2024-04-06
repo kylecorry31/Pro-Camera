@@ -106,11 +106,12 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     @OptIn(ExperimentalZeroShutterLag::class)
     override fun onResume() {
         super.onResume()
+        // TODO: Adjust for sensor rotation + display rotation
         binding.camera.start(
             readFrames = false, captureSettings = ImageCaptureSettings(
                 quality = 100,
                 captureMode = CAPTURE_MODE_MAXIMIZE_QUALITY,
-                rotation = Surface.ROTATION_90
+                rotation = requireActivity().windowManager.defaultDisplay.rotation
             )
         )
     }
