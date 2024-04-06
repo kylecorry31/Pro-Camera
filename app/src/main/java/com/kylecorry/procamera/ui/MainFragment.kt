@@ -3,6 +3,7 @@ package com.kylecorry.procamera.ui
 import android.content.ContentValues
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.Surface
@@ -207,6 +208,7 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
         val photoDetails = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM)
             put(MediaStore.Images.Media.IS_PENDING, 1)
         }
 

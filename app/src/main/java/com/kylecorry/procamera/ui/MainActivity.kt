@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.activity.SystemBarStyle
@@ -34,6 +35,12 @@ class MainActivity : AndromedaActivity() {
     private val permissions = mutableListOf(
         Manifest.permission.CAMERA
     )
+
+    init {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ExceptionHandler.initialize(this)
