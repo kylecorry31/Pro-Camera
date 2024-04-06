@@ -66,6 +66,16 @@ class MainActivity : AndromedaActivity() {
         requestPermissions(permissions) {
             findNavController().navigate(R.id.action_main)
         }
+
+        onVolumeButtonChange { _, isPressed ->
+            if (isPressed) {
+                val fragment = getFragment()
+                if (fragment is MainFragment) {
+                    fragment.takePhoto()
+                }
+            }
+            true
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {

@@ -25,6 +25,7 @@ import com.kylecorry.andromeda.fragments.inBackground
 import com.kylecorry.andromeda.haptics.HapticFeedbackType
 import com.kylecorry.andromeda.haptics.IHapticMotor
 import com.kylecorry.andromeda.pickers.Pickers
+import com.kylecorry.luna.coroutines.CoroutineQueueRunner
 import com.kylecorry.luna.coroutines.onIO
 import com.kylecorry.luna.coroutines.onMain
 import com.kylecorry.procamera.R
@@ -51,6 +52,9 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     private var iso by state<Int?>(null)
     private var shutterSpeed by state<Duration?>(null)
     private var interval by state<Duration?>(null)
+    private var isCapturing by state(false)
+
+    private val queue = CoroutineQueueRunner(1)
 
     private val intervalometer = CoroutineTimer {
         takePhoto()
@@ -127,6 +131,7 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
         binding.camera.stop()
         intervalometer.stop()
         haptics.off()
+        isCapturing = false
     }
 
     override fun onUpdate() {
@@ -168,29 +173,31 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
                 intervalometer.stop()
             }
         }
+
+        effect("capture_button", isCapturing) {
+            val isCapturing = isCapturing
+            binding.captureButton.isVisible = !isCapturing
+            binding.loadingIndicator.isVisible = isCapturing
+        }
     }
 
-    private fun takePhoto() {
-        val fileName = "images/${UUID.randomUUID()}.jpg"
-        // TODO: Save to the gallery
-        val file = files.getFile(fileName, true)
+    fun takePhoto() {
         inBackground {
+            queue.enqueue {
+                val fileName = "images/${UUID.randomUUID()}.jpg"
+                // TODO: Save to the gallery
+                val file = files.getFile(fileName, true)
 
-            onMain {
-                binding.captureButton.isVisible = false
-                binding.loadingIndicator.isVisible = true
-            }
+                isCapturing = true
 
-            onIO {
-                binding.camera.capture(file)
-                moveFileToMediaStore(file)
-            }
+                onIO {
+                    binding.camera.capture(file)
+                    moveFileToMediaStore(file)
+                }
 
-            haptics.feedback(HapticFeedbackType.Click)
+                haptics.feedback(HapticFeedbackType.Click)
 
-            onMain {
-                binding.captureButton.isVisible = true
-                binding.loadingIndicator.isVisible = false
+                isCapturing = false
             }
         }
 

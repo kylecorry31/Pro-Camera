@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="16dp"
+        android:keepScreenOn="true"
         app:layout_constraintBottom_toTopOf="@id/capture_area"
         app:layout_constraintTop_toTopOf="parent" />
 
