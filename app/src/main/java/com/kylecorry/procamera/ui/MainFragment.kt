@@ -1,6 +1,9 @@
 package com.kylecorry.procamera.ui
 
+import android.content.ContentValues
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.Surface
 import android.view.View
@@ -14,6 +17,7 @@ import com.kylecorry.andromeda.camera.ImageCaptureSettings
 import com.kylecorry.andromeda.core.math.DecimalFormatter
 import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.core.ui.setOnProgressChangeListener
+import com.kylecorry.andromeda.files.ExternalFileSystem
 import com.kylecorry.andromeda.files.IFileSystem
 import com.kylecorry.andromeda.fragments.BoundFragment
 import com.kylecorry.andromeda.fragments.inBackground
@@ -25,6 +29,7 @@ import com.kylecorry.luna.coroutines.onMain
 import com.kylecorry.procamera.R
 import com.kylecorry.procamera.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 import java.time.Duration
 import java.util.UUID
 import javax.inject.Inject
@@ -177,6 +182,7 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
 
             onIO {
                 binding.camera.capture(file)
+                moveFileToMediaStore(file)
             }
 
             haptics.feedback(HapticFeedbackType.Click)
@@ -187,6 +193,36 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             }
         }
 
+    }
+
+    private suspend fun moveFileToMediaStore(file: File) = onIO {
+        // Save the file to the system media store
+        val resolver = requireContext().contentResolver
+        val photoCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        } else {
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        }
+
+        val photoDetails = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.IS_PENDING, 1)
+        }
+
+        val photoContentUri = resolver.insert(photoCollection, photoDetails) ?: return@onIO
+        val externalFiles = ExternalFileSystem(requireContext())
+        externalFiles.outputStream(photoContentUri)?.use { output ->
+            file.inputStream().use { input ->
+                input.copyTo(output)
+            }
+        }
+
+        file.delete()
+
+        photoDetails.clear()
+        photoDetails.put(MediaStore.Audio.Media.IS_PENDING, 0)
+        resolver.update(photoContentUri, photoDetails, null, null)
     }
 
     override fun generateBinding(
