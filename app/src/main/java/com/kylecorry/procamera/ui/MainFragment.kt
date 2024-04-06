@@ -33,6 +33,7 @@ import com.kylecorry.procamera.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.time.Duration
+import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
 
@@ -184,7 +185,7 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     fun takePhoto() {
         inBackground {
             queue.enqueue {
-                val fileName = "images/${UUID.randomUUID()}.jpg"
+                val fileName = "images/ProCamera_${LocalDateTime.now()}.jpg"
                 // TODO: Save to the gallery
                 val file = files.getFile(fileName, true)
 
