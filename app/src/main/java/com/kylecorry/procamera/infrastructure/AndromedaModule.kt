@@ -1,4 +1,4 @@
-package com.kylecorry.procamera.ui
+package com.kylecorry.procamera.infrastructure
 
 import android.content.Context
 import com.kylecorry.andromeda.files.IFileSystem

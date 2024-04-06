@@ -1,4 +1,4 @@
-package com.kylecorry.procamera.ui
+package com.kylecorry.procamera.infrastructure.errors
 
 import android.content.Context
 import com.kylecorry.andromeda.exceptions.AggregateBugReportGenerator
@@ -8,7 +8,6 @@ import com.kylecorry.andromeda.exceptions.BaseExceptionHandler
 import com.kylecorry.andromeda.exceptions.DeviceDetailsBugReportGenerator
 import com.kylecorry.andromeda.exceptions.StackTraceBugReportGenerator
 import com.kylecorry.procamera.R
-import com.kylecorry.procamera.infrastructure.errors.FragmentDetailsBugReportGenerator
 
 class CustomExceptionHandler(
     context: Context

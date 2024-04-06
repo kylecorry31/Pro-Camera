@@ -6,7 +6,7 @@ import com.kylecorry.andromeda.alerts.Alerts
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.exceptions.*
 import com.kylecorry.procamera.R
-import com.kylecorry.procamera.infrastructure.errors.FragmentDetailsBugReportGenerator
+import com.kylecorry.procamera.infrastructure.errors.CustomExceptionHandler
 
 object ExceptionHandler {
 

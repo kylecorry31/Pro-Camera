@@ -13,7 +13,6 @@ class MyApplication : Application(), CameraXConfig.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        NotificationChannels.createChannels(this)
         migratePreferences()
     }
 
