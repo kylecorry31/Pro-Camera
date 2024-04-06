@@ -65,6 +65,7 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     private var shutterSpeed by state<Duration?>(null)
     private var interval by state<Duration?>(null)
     private var isCapturing by state(false)
+    private var zoomRatio by state(1f)
 
     private val queue = CoroutineQueueRunner(1)
 
@@ -122,6 +123,10 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             ) {
                 interval = it
             }
+        }
+
+        binding.camera.setOnZoomChangeListener {
+            zoomRatio = binding.camera.camera?.zoom?.ratio ?: 1f
         }
     }
 
@@ -190,6 +195,12 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             val isCapturing = isCapturing
             binding.captureButton.isVisible = !isCapturing
             binding.loadingIndicator.isVisible = isCapturing
+        }
+
+        effect("zoom", zoomRatio) {
+            val zoomRatio = zoomRatio
+            binding.zoom.text = DecimalFormatter.format(zoomRatio, 2) + "x"
+//            binding.camera.camera?.setZoomRatio(zoomRatio)
         }
     }
 
