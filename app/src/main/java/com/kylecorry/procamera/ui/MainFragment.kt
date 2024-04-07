@@ -68,6 +68,8 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     private var isCapturing by state(false)
     private var zoomRatio by state(1f)
     private var sensitivities by state(emptyList<Int>())
+    private var cameraStartCounter by state(0)
+    private var previousShutterSpeed by state<Duration?>(null)
 
     private val queue = CoroutineQueueRunner(1)
 
@@ -144,14 +146,9 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             val camera = binding.camera.camera ?: return@setOnReadyListener
             val sensitivityProvider = SensitivityProvider()
             sensitivities = sensitivityProvider.getValues(camera)
+            cameraStartCounter++
         }
-        binding.camera.start(
-            readFrames = false, captureSettings = ImageCaptureSettings(
-                quality = 100,
-                captureMode = CAPTURE_MODE_MAXIMIZE_QUALITY,
-                rotation = requireActivity().windowManager.defaultDisplay.rotation
-            )
-        )
+        startCamera()
     }
 
     override fun onPause() {
@@ -164,7 +161,7 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
 
     override fun onUpdate() {
         super.onUpdate()
-        effect("focus", focusPercent) {
+        effect("focus", focusPercent, cameraStartCounter) {
             val pct = focusPercent
             binding.focusLabel.text = getString(
                 R.string.focus_amount, if (pct == null) {
@@ -176,18 +173,23 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             binding.camera.camera?.setFocusDistancePercentage(pct)
         }
 
-        effect("iso", iso) {
+        effect("iso", iso, cameraStartCounter) {
             val iso = iso
             binding.iso.text = iso?.toString() ?: getString(R.string.auto)
             binding.camera.camera?.setSensitivity(iso)
         }
 
-        effect("shutter_speed", shutterSpeed) {
+        effect("shutter_speed", shutterSpeed, cameraStartCounter) {
             val shutterSpeed = shutterSpeed
             binding.shutterSpeed.text =
                 shutterSpeed?.let { DecimalFormatter.format(shutterSpeed.toMillis() / 1000f, 2) }
                     ?: getString(R.string.auto)
             binding.camera.camera?.setExposureTime(shutterSpeed)
+            val previous = previousShutterSpeed
+            previousShutterSpeed = shutterSpeed
+            if (shutterSpeed != previous && previous != null && previous > Duration.ofMillis(250)) {
+                restartCamera()
+            }
         }
 
         effect("interval", interval, lifecycleHookTrigger.onResume()) {
@@ -208,7 +210,7 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             binding.loadingIndicator.isVisible = isCapturing
         }
 
-        effect("zoom", zoomRatio) {
+        effect("zoom", zoomRatio, cameraStartCounter) {
             val zoomRatio = zoomRatio
             binding.zoom.text = DecimalFormatter.format(zoomRatio, 2) + "x"
 //            binding.camera.camera?.setZoomRatio(zoomRatio)
@@ -235,6 +237,22 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             }
         }
 
+    }
+
+    private fun startCamera() {
+        binding.camera.start(
+            readFrames = false,
+            captureSettings = ImageCaptureSettings(
+                quality = 100,
+                captureMode = CAPTURE_MODE_MAXIMIZE_QUALITY,
+                rotation = requireActivity().windowManager.defaultDisplay.rotation
+            )
+        )
+    }
+
+    private fun restartCamera() {
+        binding.camera.stop()
+        startCamera()
     }
 
     override fun generateBinding(
