@@ -1,24 +1,17 @@
 package com.kylecorry.procamera.ui
 
-import android.content.ContentValues
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.view.LayoutInflater
-import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalZeroShutterLag
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
-import androidx.camera.core.ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
 import androidx.core.view.isVisible
 import com.kylecorry.andromeda.camera.ImageCaptureSettings
 import com.kylecorry.andromeda.core.math.DecimalFormatter
 import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.core.ui.setOnProgressChangeListener
-import com.kylecorry.andromeda.files.ExternalFileSystem
 import com.kylecorry.andromeda.files.IFileSystem
 import com.kylecorry.andromeda.fragments.BoundFragment
 import com.kylecorry.andromeda.fragments.inBackground
@@ -34,11 +27,7 @@ import com.kylecorry.procamera.infrastructure.camera.SensitivityProvider
 import com.kylecorry.procamera.infrastructure.io.FileNameGenerator
 import com.kylecorry.procamera.infrastructure.io.MediaStoreSaver
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.File
 import java.time.Duration
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.UUID
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -70,10 +59,26 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     private var sensitivities by state(emptyList<Int>())
     private var cameraStartCounter by state(0)
     private var previousShutterSpeed by state<Duration?>(null)
+    private var isCameraRunning by state(false)
 
     private val queue = CoroutineQueueRunner(1)
 
+    private var hasPendingPhoto = false
+    private var turnOffDuringInterval = false
+
     private val intervalometer = CoroutineTimer {
+        if (turnOffDuringInterval) {
+            println("INTERVAL")
+            hasPendingPhoto = true
+            onMain {
+                restartCamera()
+            }
+        } else {
+            takePhoto()
+        }
+    }
+
+    private val delayedPhotoTimer = CoroutineTimer {
         takePhoto()
     }
 
@@ -147,15 +152,21 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             val sensitivityProvider = SensitivityProvider()
             sensitivities = sensitivityProvider.getValues(camera)
             cameraStartCounter++
+
+            if (hasPendingPhoto) {
+                delayedPhotoTimer.once(Duration.ofMillis(500))
+            }
+
         }
         startCamera()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.camera.stop()
         intervalometer.stop()
+        delayedPhotoTimer.stop()
         haptics.off()
+        stopCamera()
         isCapturing = false
     }
 
@@ -198,9 +209,16 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
                 interval?.let { DecimalFormatter.format(it.toMillis() / 1000f, 2) }
                     ?: getString(R.string.off)
             if (interval != null) {
+                turnOffDuringInterval = interval > Duration.ofSeconds(2)
                 intervalometer.interval(interval)
             } else {
+                val wasRunning = turnOffDuringInterval
                 intervalometer.stop()
+                hasPendingPhoto = false
+                turnOffDuringInterval = false
+                if (wasRunning) {
+                    restartCamera()
+                }
             }
         }
 
@@ -214,6 +232,11 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
             val zoomRatio = zoomRatio
             binding.zoom.text = DecimalFormatter.format(zoomRatio, 2) + "x"
 //            binding.camera.camera?.setZoomRatio(zoomRatio)
+        }
+
+        effect("blackout", isCameraRunning, cameraStartCounter) {
+            val isCameraRunning = isCameraRunning
+            binding.blackout.isVisible = !isCameraRunning
         }
     }
 
@@ -234,6 +257,12 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
                 haptics.feedback(HapticFeedbackType.Click)
 
                 isCapturing = false
+                hasPendingPhoto = false
+                if (turnOffDuringInterval) {
+                    onMain {
+                        stopCamera()
+                    }
+                }
             }
         }
 
@@ -248,10 +277,16 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
                 rotation = requireActivity().windowManager.defaultDisplay.rotation
             )
         )
+        isCameraRunning = true
+    }
+
+    private fun stopCamera() {
+        binding.camera.stop()
+        isCameraRunning = false
     }
 
     private fun restartCamera() {
-        binding.camera.stop()
+        stopCamera()
         startCamera()
     }
 
