@@ -38,6 +38,7 @@ class CameraView(context: Context, attrs: AttributeSet?) : FrameLayout(context, 
     private var zoomListener: ((Float) -> Unit)? = null
     private var imageListener: ((Bitmap) -> Unit)? = null
     private var captureListener: ((Bitmap) -> Unit)? = null
+    private var onReadyListener: (() -> Unit)? = null
     private var isTorchOn = false
     private var zoom: Float = -1f
     private var isCapturing = false
@@ -163,12 +164,17 @@ class CameraView(context: Context, attrs: AttributeSet?) : FrameLayout(context, 
         zoomListener = listener
     }
 
+    fun setOnReadyListener(listener: (() -> Unit)?) {
+        onReadyListener = listener
+    }
+
     fun setScaleType(type: PreviewView.ScaleType) {
         preview.scaleType = type
     }
 
     @SuppressLint("UnsafeOptInUsageError")
     private fun onCameraUpdate(): Boolean {
+        onReadyListener?.invoke()
         if (zoom == -1f) {
             setZoomRatio(1f)
         }

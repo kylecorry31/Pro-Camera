@@ -30,6 +30,7 @@ import com.kylecorry.luna.coroutines.onIO
 import com.kylecorry.luna.coroutines.onMain
 import com.kylecorry.procamera.R
 import com.kylecorry.procamera.databinding.FragmentMainBinding
+import com.kylecorry.procamera.infrastructure.camera.SensitivityProvider
 import com.kylecorry.procamera.infrastructure.io.FileNameGenerator
 import com.kylecorry.procamera.infrastructure.io.MediaStoreSaver
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,6 +67,7 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     private var interval by state<Duration?>(null)
     private var isCapturing by state(false)
     private var zoomRatio by state(1f)
+    private var sensitivities by state(emptyList<Int>())
 
     private val queue = CoroutineQueueRunner(1)
 
@@ -85,16 +87,20 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
         }
 
         binding.iso.setOnClickListener {
-            Pickers.number(
+            val sensitivityNames =
+                listOf(getString(R.string.auto)) + sensitivities.map { it.toString() }
+
+            Pickers.item(
                 requireContext(),
                 getString(R.string.iso),
-                default = iso,
-                allowDecimals = false,
-                allowNegative = false,
-                hint = getString(R.string.iso)
+                sensitivityNames,
+                sensitivities.indexOf(iso) + 1,
             ) {
-                if (it != null) {
-                    iso = it.toInt()
+                it ?: return@item
+                iso = if (it == 0) {
+                    null
+                } else {
+                    sensitivities[it - 1]
                 }
             }
         }
@@ -134,6 +140,11 @@ class MainFragment : BoundFragment<FragmentMainBinding>() {
     override fun onResume() {
         super.onResume()
         // TODO: Adjust for sensor rotation + display rotation
+        binding.camera.setOnReadyListener {
+            val camera = binding.camera.camera ?: return@setOnReadyListener
+            val sensitivityProvider = SensitivityProvider()
+            sensitivities = sensitivityProvider.getValues(camera)
+        }
         binding.camera.start(
             readFrames = false, captureSettings = ImageCaptureSettings(
                 quality = 100,
